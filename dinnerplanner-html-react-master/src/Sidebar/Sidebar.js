@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import './Sidebar.css';
+import { Link } from 'react-router-dom';
 class Sidebar extends Component {
 
   constructor(props) {
@@ -37,15 +38,36 @@ class Sidebar extends Component {
     this.props.model.setNumberOfGuests(+e.target.value)
   }
 
-  render() {
+
+render() {
+    function onPlusClicked (){
+
+      this.props.model.setNumberOfGuests(this.props.model.getNumberOfGuests()+1)
+    }
+
+    function onMinusClicked (){
+
+      this.props.model.setNumberOfGuests(this.props.model.getNumberOfGuests()-1)
+    }
     return (
+      <div className="col-sm-3">
       <div className="Sidebar">
         <h3>This is the sidebar</h3>
         <p>
-        People: <input value={this.state.numberOfGuests} onChange={this.onNumberOfGuestsChanged}/>
-        <br/>
+        Change number of people: <input id="peopleinput" className="btn btn-primary" value={this.state.numberOfGuests} onChange={this.onNumberOfGuestsChanged}/>
+
+
+        <button className="btn btn-primary" onClick={onPlusClicked.bind(this)}>Plus</button>
+        <button className="btn btn-primary" onClick={onMinusClicked.bind(this)}>Minus</button>
+        
         Total number of guests: {this.state.numberOfGuests}
+
         </p>
+        <Link to="/confirmDinner">
+            <button className="btn btn-primary">Confirm dinner</button>
+        </Link>
+
+      </div>
       </div>
     );
   }
