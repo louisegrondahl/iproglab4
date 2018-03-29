@@ -1,14 +1,25 @@
 const httpOptions = {
-  headers: {'X-Mashape-Key': 'YOUR_API_KEY'}
+  headers: {'X-Mashape-Key': 'Qu9grxVNWpmshA4Kl9pTwyiJxVGUp1lKzrZjsnghQMkFkfA4LB'}
 };
 
 const DinnerModel = function () {
 
-  let numberOfGuests = 4;
+  let numberOfGuests = 2;
+  if(localStorage.getItem('numberOfGuests')){
+    numberOfGuests = parseInt(localStorage.getItem('numberOfGuests'), 10);
+  }
   let observers = [];
+  let menu = [];
+  if(localStorage.getItem('menu')){
+    menu = JSON.parse(localStorage.getItem('menu')); 
+  }
+  
+
 
   this.setNumberOfGuests = function (num) {
     numberOfGuests = num;
+    if(num < 1) num = 0;
+    localStorage.setItem('numberOfGuests', numberOfGuests);
     notifyObservers();
   };
 
@@ -16,10 +27,45 @@ const DinnerModel = function () {
     return numberOfGuests;
   };
 
+  this.addDishToMenu = function(dish) { 
+    if (!menu.some(d => d.id === dish.id)){
+      menu.push(dish)
+      localStorage.setItem('menu', JSON.stringify(menu));
+    }
+    notifyObservers();
+  }
+
+  this.removeDishFromMenu = function(dish) {
+    menu = menu.filter(d => d.id !== dish.id)
+    localStorage.setItem('menu', JSON.stringify(menu));
+    notifyObservers();
+  }
+
+  this.getFullMenu = function() {
+    return menu;
+    
+  };
+
+  this.getTotalMenuPrice = function() {
+    var totalPrice=0;
+    
+    for (var i in menu) {
+      totalPrice += menu[i].pricePerServing*numberOfGuests
+    }
+
+    return Math.round(totalPrice);
+  }
   // API Calls
 
-  this.getAllDishes = function () {
-    const url = 'https://spoonacular-recipe-food-nutrition-v1.p.mashape.com/recipes/search'
+  this.getAllDishes = function (type, filter) {
+    const url = 'https://spoonacular-recipe-food-nutrition-v1.p.mashape.com/recipes/search?type=' + type + '&query=' + filter;
+    return fetch(url, httpOptions)
+      .then(processResponse)
+      .catch(handleError)
+  }
+
+  this.getDish = function (id) {
+    const url = 'https://spoonacular-recipe-food-nutrition-v1.p.mashape.com/recipes/' + id + '/information';
     return fetch(url, httpOptions)
       .then(processResponse)
       .catch(handleError)
